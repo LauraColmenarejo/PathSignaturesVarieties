@@ -1,0 +1,107 @@
+Toric geometry of path signature varieties: Software computations I
+
+Authors 
+-) L. Colmenarejo (laura(dot)colmenarejo(dot)hernando(at)gmail(dot)com)
+-) F. Galuppi ()
+-) Mateusz Michalekz (michalek(at)mis(dot)mpg(dot)de)
+
+Description: This webpage contains the software computations included in the paper.
+
+Reference: Arxiv 
+
+Program 1: Done with the software Macaulay2
+
+-- Monom is an auxiliary function to compute the signatures 
+Monom = (nu, i, j) -> (
+if (nu=={} and i!={}) then return 0;  
+if i=={} then return 1/(j!);
+if nu#(#nu-1) != i#(#i -1) then return Monom(drop(nu,{#nu-1,#nu-1}),i,0)/(j!);  
+return Monom(drop(nu,{#nu-1,#nu-1}),i,0)/(j!) 
++ a_(#nu)*Monom(nu, drop(i,{#i-1,#i-1}),j+1)
+)
+
+-- Paramet is our main function. It computes the parametrization of the k-th signature for the axis path $\nu$. 
+Paramet = (nu,k) -> (
+d=(max nu); -- maximum of the entries (we are in R^d)
+m = #nu; -- length of nu (our axis path has m steps)
+R = QQ[a_1..a_m]; 
+L1 = {1};
+Ld = {d};
+for s from 2 to k do (
+L1 = L1|{1};
+Ld = Ld|{d};
+);
+S = QQ[s_L1..s_Ld];
+I = toList(L1..Ld);
+M={};
+for q in I do (
+M = M|{Monom(nu,q,0)};
+);
+return M
+)
+
+-- Signature computes the signature for a given vector A=(a_1,...,a_m). 
+Signature = (nu,k,A) -> (
+for i from 0 to #A-1 do(
+a_(i+1) = A#i;);
+M = Paramet(nu,k);
+return M
+)
+
+-- OurVar computes the ideal of the variety given by the k-th signature of the axis path associated to the sequence nu.
+OurVar = (nu, k) -> (
+M = Paramet(nu,k);
+f = map(R,S,M);
+return kernel f    
+)
+
+--Now we want to compute dimensions.
+FindDimension= (nu,k) -> (
+M = Paramet(nu,k);
+J=jacobian matrix({M});
+L={a_1=>(-1)^(random 2)*(random 10)};
+for i from 2 to #nu do L=L|{a_i=>(-1)^(random 2)*(random 10)};
+X=sub(J,L);
+return rank X
+)
+
+Example: nu = (1,2,1), k=3 
+-- OurVar computes the path signature variety
+ X = OurVar({1,2,1},3);
+
+-- The coordinate s_{2,1,2} is identically 0, so we eliminate it.
+ X1 = eliminate(X,s_{2,1,2}); 
+
+-- We define the change of coordinates.
+ B= QQ[v1,v2,v3,v4,v5,v6,v7];
+ Bmap = map(S,B,
+ 	{3*s_{2,2,2},s_{1,2,2}+s_{2,2,1},s_{1,1,2}+s_{1,2,1}+s_{2,1,1},3*s_{1,1,1},
+ 	-s_{2,2,1},-s_{2,1,1}-s_{1,2,1}/2,s_{2,1,1}});
+
+-- We compute our variety in this change of coordinates. 
+ XinB = preimage(Bmap, X1);
+
+-- We compute the minimum set of generators of the Gröbner basis
+mingens gb XinB;
+
+-- We print the output
+o9 = ideal (v6^2  - v3*v7, v5*v6 - v2*v7, v5^2  - v1*v7, v4*v5 - v3*v6,
+	 v3*v5 -v2*v6, v2*v5 - v1*v6, v3^2  - v2*v4, v2*v3 - v1*v4, v2^2  - v1*v3)
+
+Example: nu = (1,2,1,2), k=3
+-- OurVar computes the path signature variety
+ X = OurVar({1,2,1,2},3);
+
+-- We define the change of coordinates.
+ B= QQ[v1,v2,v3,v4,v5,v6,v7,v8];
+Bmap = map(S,B,
+	{3*s_{2,2,2},s_{1,2,2}+s_{2,2,1}+s_{2,1,2},
+	s_{1,1,2}+s_{1,2,1}+s_{2,1,1},3*s_{1,1,1},-2*s_{2,2,1}-s_{2,1,2},
+	8*s_{2,2,1},-2*s_{2,1,1}-s_{1,2,1},-s_{2,1,1}})
+
+-- We compute our variety in this change of coordinates. 
+ XinB = preimage(Bmap, X1);
+
+-- We compute the minimum set of generators of the Gröbner basis
+mingens gb XinB;
+
