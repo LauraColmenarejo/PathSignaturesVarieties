@@ -1,3 +1,14 @@
+Toric geometry of path signature varieties: Software computations II
+
+Authors 
+-) L. Colmenarejo (laura(dot)colmenarejo(dot)hernando(at)gmail(dot)com)
+-) F. Galuppi ()
+-) Mateusz Michalekz (michalek(at)mis(dot)mpg(dot)de)
+
+Description: This webpage contains the software computations included in the paper.
+
+Reference: Arxiv 
+
 Program
 
 def Polytope_normality(k,m):
