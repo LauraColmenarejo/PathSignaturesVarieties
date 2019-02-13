@@ -9,7 +9,7 @@ Description: This webpage contains the software computations included in the pap
 
 Reference: Arxiv 
 
-Program 1: Done with the software Macaulay2
+Program 
 
 -- Monom is an auxiliary function to compute the signatures 
 Monom = (nu, i, j) -> (
